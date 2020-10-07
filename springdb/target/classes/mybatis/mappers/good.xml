@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="good">
+	<!-- 
+	<select id="allgood" resultType="mybatis.domain.Good">
+		select * from goods
+	</select>
+
+	<select id="codesearch" resultType="mybatis.domain.Good"
+		parameterType="int">
+		select * from goods where code = #{code}
+	</select>
+ 	-->
+ 
+	<!-- <insert id="insertgood" parameterType="good"> insert into goods(code, 
+		name, manufacture, price) values(#{code}, #{name}, #{manufacture}, #{price}) 
+		</insert> <delete id="deletegood"> delete from goods where code = #{code} 
+		</delete> <update id="updategood"> update goods set name=#{name}, manufacture=#{manufacture}, 
+		price = #{price} where code = #{code} </update> -->
+
+	<insert id="insertgood" statementType="CALLABLE">
+		{call
+		insertgood(#{code},#{name},#{manufacture},#{price})}
+	</insert>
+
+	<delete id="deletegood" statementType="CALLABLE">
+		{call deletegood(#{code})}
+	</delete>
+
+	<update id="updategood" statementType="CALLABLE">
+		{call
+		updategood(#{code},#{name},#{manufacture},#{price})}
+	</update>
+
+	<resultMap id="sampleVOMap" type="mybatis.domain.Good">
+		<result property="code" column="code" />
+		<result property="name" column="name" />
+		<result property="manufacture" column="manufacture" />
+		<result property="price" column="price" />
+	</resultMap>
+
+	<select id="allgood" statementType="CALLABLE"
+		resultMap="sampleVOMap">
+		{
+			call allGood(#{vcursor, mode=OUT, jdbcType=CURSOR,
+				javaType=ResultSet, resultMap=sampleVOMap})
+		}
+	</select>
+	
+	<select id="codesearch" statementType="CALLABLE" resultMap="sampleVOMap">
+     	{
+     		call codeSearch(
+            #{vcode, mode=IN},
+            #{vcursor, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=sampleVOMap})
+       }
+	</select>
+</mapper>

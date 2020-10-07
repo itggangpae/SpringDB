@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<!-- 오라클 DataSource -->
+	<bean
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+		id="dataSource">
+		<property name="driverClassName"
+			value="oracle.jdbc.driver.OracleDriver" />
+		<property name="url"
+			value="jdbc:log4jdbc:oracle:thin:@localhost:1521:xe"/>
+		<property name="username" value="system" />
+		<property name="password" value="wnddkd" />
+	</bean>
+
+
+	<bean class="dao.ContactDAO" id="contactDao">
+		<constructor-arg>
+			<ref bean="dataSource" />
+		</constructor-arg>
+	</bean>
+
+	<bean class="dao.NamedContactDAO" id="namedContactDao"
+		c:dataSource-ref="dataSource">
+	</bean>
+
+	<bean class="dao.SimpleJdbcInsertDAO" id="simpleJdbcInsertDao">
+		<constructor-arg>
+			<ref bean="dataSource" />
+		</constructor-arg>
+	</bean>
+
+	<bean class="dao.SimpleJdbcCallDAO" id="simpleJdbcCallDao">
+		<constructor-arg>
+			<ref bean="dataSource" />
+		</constructor-arg>
+	</bean>
+
+	<!-- MySQL DataSource -->
+	<bean id="mysqlDataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName">
+			<value>com.mysql.jdbc.Driver</value>
+		</property>
+		<property name="url">
+			<value>jdbc:mysql://127.0.0.1:3306/spring?characterEncoding=UTF-8&amp;serverTimezone=UTC
+			</value>
+		</property>
+		<property name="username">
+			<value>root</value>
+		</property>
+		<property name="password">
+			<value></value>
+		</property>
+	</bean>
+	<bean class="dao.MySqlDAO" id="mySqlDao">
+		<constructor-arg>
+			<ref bean="mysqlDataSource" />
+		</constructor-arg>
+	</bean>
+
+	<!-- 
+	<bean class="org.mybatis.spring.SqlSessionFactoryBean"
+		id="sqlSessionFactory">
+		<property name="dataSource" ref="dataSource" />
+		<property value="classpath:/mybatis/mybatis-config.xml"
+			name="configLocation" />
+	</bean>
+	 -->
+	
+	<!-- xml 설정 과 어노테이션을 같이 사용하기 위한 설정 -->
+	<context:annotation-config></context:annotation-config>
+
+	<!-- 인스턴스를 자동으로 생성하기 위한 패키지 위치 설정 -->
+	<context:component-scan base-package="mybatis" />
+
+	<!-- MyBatis 설정을 위한 설정 -->
+	
+	<!-- xml 파일을 이용한 설정 -->
+	<!-- 
+	<bean class="org.mybatis.spring.SqlSessionFactoryBean"
+		id="sqlSessionFactory">
+		<property name="dataSource" ref="dataSource" />
+		<property value="classpath:/mybatis/mybatis-config.xml"
+			name="configLocation" />
+		<property value="classpath:/mybatis/mappers/good.xml"
+			name="mapperLocations" />
+	</bean>
+
+	<bean class="org.mybatis.spring.SqlSessionTemplate"
+		id="sqlSession" destroy-method="clearCache">
+		<constructor-arg name="sqlSessionFactory"
+			ref="sqlSessionFactory" />
+	</bean>
+	 -->
+	 
+	<!-- MyBatis 인터페이스를 이용한 설정 -->
+	<bean id="sqlSessionFactory"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="goodMapper"
+		class="org.mybatis.spring.mapper.MapperFactoryBean">
+		<property name="mapperInterface"
+			value="mybatis.service.impl.GoodMapper" />
+		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
+	</bean>
+	
+	<bean id="template"
+		class="org.springframework.jdbc.core.simple.SimpleJdbcInsert">
+		<constructor-arg>
+			<ref bean="dataSource" />
+		</constructor-arg>
+	</bean>
+	
+	<context:annotation-config />
+	<context:component-scan base-package="dao" />
+	
+	<bean id="transactionManager"
+	class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+</beans>
