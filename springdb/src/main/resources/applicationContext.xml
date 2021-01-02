@@ -15,44 +15,18 @@
 		<property name="driverClassName"
 			value="oracle.jdbc.driver.OracleDriver" />
 		<property name="url"
-			value="jdbc:log4jdbc:oracle:thin:@localhost:1521:xe"/>
+			value="jdbc:log4jdbc:oracle:thin:@localhost:1521:xe" />
 		<property name="username" value="system" />
 		<property name="password" value="wnddkd" />
-	</bean>
-
-
-	<bean class="dao.ContactDAO" id="contactDao">
-		<constructor-arg>
-			<ref bean="dataSource" />
-		</constructor-arg>
-	</bean>
-
-	<bean class="dao.NamedContactDAO" id="namedContactDao"
-		c:dataSource-ref="dataSource">
-	</bean>
-
-	<bean class="dao.SimpleJdbcInsertDAO" id="simpleJdbcInsertDao">
-		<constructor-arg>
-			<ref bean="dataSource" />
-		</constructor-arg>
-	</bean>
-
-	<bean class="dao.SimpleJdbcCallDAO" id="simpleJdbcCallDao">
-		<constructor-arg>
-			<ref bean="dataSource" />
-		</constructor-arg>
 	</bean>
 
 	<!-- MySQL DataSource -->
 	<bean id="mysqlDataSource"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName">
-			<value>com.mysql.jdbc.Driver</value>
-		</property>
-		<property name="url">
-			<value>jdbc:mysql://127.0.0.1:3306/spring?characterEncoding=UTF-8&amp;serverTimezone=UTC
-			</value>
-		</property>
+		<property name="driverClassName"
+			value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy" />
+		<property name="url"
+			value="jdbc:log4jdbc:mysql://localhost:3306/cyberadam?characterEncoding=UTF-8&amp;serverTimezone=UTC" />
 		<property name="username">
 			<value>root</value>
 		</property>
@@ -60,75 +34,78 @@
 			<value></value>
 		</property>
 	</bean>
-	<bean class="dao.MySqlDAO" id="mySqlDao">
-		<constructor-arg>
-			<ref bean="mysqlDataSource" />
-		</constructor-arg>
+
+	<context:annotation-config />
+	<context:component-scan base-package="db" />
+
+	<bean class="org.springframework.jdbc.core.JdbcTemplate"
+		id="jdbcTemplate">
+		<constructor-arg ref="dataSource"></constructor-arg>
 	</bean>
 
-	<!-- 
-	<bean class="org.mybatis.spring.SqlSessionFactoryBean"
-		id="sqlSessionFactory">
-		<property name="dataSource" ref="dataSource" />
-		<property value="classpath:/mybatis/mybatis-config.xml"
-			name="configLocation" />
-	</bean>
-	 -->
-	
-	<!-- xml 설정 과 어노테이션을 같이 사용하기 위한 설정 -->
-	<context:annotation-config></context:annotation-config>
-
-	<!-- 인스턴스를 자동으로 생성하기 위한 패키지 위치 설정 -->
-	<context:component-scan base-package="mybatis" />
-
-	<!-- MyBatis 설정을 위한 설정 -->
-	
-	<!-- xml 파일을 이용한 설정 -->
-	<!-- 
-	<bean class="org.mybatis.spring.SqlSessionFactoryBean"
-		id="sqlSessionFactory">
-		<property name="dataSource" ref="dataSource" />
-		<property value="classpath:/mybatis/mybatis-config.xml"
-			name="configLocation" />
-		<property value="classpath:/mybatis/mappers/good.xml"
-			name="mapperLocations" />
+	<bean
+		class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate"
+		id="namedParameterJdbcTemplate">
+		<constructor-arg ref="dataSource"></constructor-arg>
 	</bean>
 
-	<bean class="org.mybatis.spring.SqlSessionTemplate"
-		id="sqlSession" destroy-method="clearCache">
-		<constructor-arg name="sqlSessionFactory"
-			ref="sqlSessionFactory" />
-	</bean>
-	 -->
-	 
+	<!-- <bean class="org.springframework.jdbc.core.simple.SimpleJdbcInsert" 
+		id="simpleJdbcInsert"> <constructor-arg ref="dataSource"></constructor-arg> 
+		</bean> <bean class="org.springframework.jdbc.core.simple.SimpleJdbcCall" 
+		id="simpleJdbcCall"> <constructor-arg ref="dataSource"></constructor-arg> 
+		</bean> -->
+
+	<!-- <bean class="org.springframework.jdbc.core.simple.SimpleJdbcInsert" 
+		id="simpleJdbcInsert"> <constructor-arg ref="mysqlDataSource"></constructor-arg> 
+		</bean> <bean class="org.springframework.jdbc.core.simple.SimpleJdbcCall" 
+		id="simpleJdbcCall"> <constructor-arg ref="mysqlDataSource"></constructor-arg> 
+		</bean> -->
+
+	<!-- XML을 사용하는 MyBatis 설정을 위한 설정 -->
+	<!-- <bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactory"> 
+		<property name="dataSource" ref="dataSource" /> <property value="classpath:/mybatis/mybatis-config.xml" 
+		name="configLocation" /> <property value="classpath:/mybatis/mappers/good.xml" 
+		name="mapperLocations" /> </bean> <bean class="org.mybatis.spring.SqlSessionTemplate" 
+		id="sqlSession" destroy-method="clearCache"> <constructor-arg name="sqlSessionFactory" 
+		ref="sqlSessionFactory" /> </bean> -->
+
 	<!-- MyBatis 인터페이스를 이용한 설정 -->
 	<bean id="sqlSessionFactory"
 		class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
 
-	<bean id="goodMapper"
-		class="org.mybatis.spring.mapper.MapperFactoryBean">
-		<property name="mapperInterface"
-			value="mybatis.service.impl.GoodMapper" />
-		<property name="sqlSessionFactory" ref="sqlSessionFactory" />
-	</bean>
-	
-	<bean id="template"
-		class="org.springframework.jdbc.core.simple.SimpleJdbcInsert">
-		<constructor-arg>
-			<ref bean="dataSource" />
-		</constructor-arg>
-	</bean>
-	
-	<context:annotation-config />
-	<context:component-scan base-package="dao" />
-	
-	<bean id="transactionManager"
-	class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="dataSource" />
+	<!-- Mapper 인터페이스가 여러 개인 경우 위의 설정을 변경 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="db.mybatis.serviceimpl" />
 	</bean>
 
-	<tx:annotation-driven transaction-manager="transactionManager" />
-	
+	<!-- hibernate 사용을 위한 설정 -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="mysqlDataSource" />
+		<property name="mappingResources">
+			<list>
+				<value>db/hibernate/dao/good.hbm.xml</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<value>
+				hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+			</value>
+		</property>
+	</bean>
+
+	<!-- @Repository 클래스들에 대해 자동으로 예외를 Spring의 DataAccessException으로 일괄 변환해주는 
+		설정 -->
+	<bean
+		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+
+	<tx:annotation-driven />
+
 </beans>

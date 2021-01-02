@@ -5,56 +5,74 @@
 
 <mapper namespace="good">
 	<!-- 
-	<select id="allgood" resultType="mybatis.domain.Good">
-		select * from goods
+	<insert id="insertGood" parameterType="Good"> 
+		insert into goods(code, name, manufacture, price, shelflife, image) 
+		values(#{code}, #{name}, #{manufacture}, #{price}, #{shelflife}, #{image}) 
+	</insert> 
+	-->
+
+	<!-- 
+	<select id="listGood" resultType="Good">
+		select * from
+		goods
 	</select>
 
-	<select id="codesearch" resultType="mybatis.domain.Good"
-		parameterType="int">
-		select * from goods where code = #{code}
+	<select id="getGood" resultType="Good" parameterType="int">
+		select *
+		from goods
+		where code = #{code}
 	</select>
- 	-->
- 
-	<!-- <insert id="insertgood" parameterType="good"> insert into goods(code, 
-		name, manufacture, price) values(#{code}, #{name}, #{manufacture}, #{price}) 
-		</insert> <delete id="deletegood"> delete from goods where code = #{code} 
-		</delete> <update id="updategood"> update goods set name=#{name}, manufacture=#{manufacture}, 
-		price = #{price} where code = #{code} </update> -->
+	-->
 
-	<insert id="insertgood" statementType="CALLABLE">
+	<!-- 
+	<update id="updateGood" parameterType="Good"> 
+		update goods 
+		set name=#{name},manufacture=#{manufacture}, price = #{price} 
+		where code = #{code} 
+	</update> 
+	
+	<delete 
+		id="deleteGood" 
+		parameterType="int"> 
+		delete from goods where code = #{code} 
+	</delete>
+	 -->
+
+	<insert id="insertGood" statementType="CALLABLE">
 		{call
-		insertgood(#{code},#{name},#{manufacture},#{price})}
+		insertGood(#{code},#{name},#{manufacture},#{price}, #{shelflife}, #{image})}
 	</insert>
 
-	<delete id="deletegood" statementType="CALLABLE">
-		{call deletegood(#{code})}
-	</delete>
-
-	<update id="updategood" statementType="CALLABLE">
+	<update id="updateGood" statementType="CALLABLE">
 		{call
 		updategood(#{code},#{name},#{manufacture},#{price})}
 	</update>
 
-	<resultMap id="sampleVOMap" type="mybatis.domain.Good">
+	<delete id="deleteGood" statementType="CALLABLE">
+		{call 
+		deletegood(#{code})}
+	</delete>
+	
+	<resultMap id="sampleVOMap" type="Good">
 		<result property="code" column="code" />
 		<result property="name" column="name" />
 		<result property="manufacture" column="manufacture" />
 		<result property="price" column="price" />
 	</resultMap>
-
-	<select id="allgood" statementType="CALLABLE"
+	
+	<select id="listGood" 
+		statementType="CALLABLE"
 		resultMap="sampleVOMap">
-		{
-			call allGood(#{vcursor, mode=OUT, jdbcType=CURSOR,
-				javaType=ResultSet, resultMap=sampleVOMap})
-		}
+			{
+				call listGood(#{vcursor, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=sampleVOMap})
+			}
 	</select>
 	
-	<select id="codesearch" statementType="CALLABLE" resultMap="sampleVOMap">
-     	{
-     		call codeSearch(
-            #{vcode, mode=IN},
-            #{vcursor, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=sampleVOMap})
-       }
-	</select>
+	<select id="getGood" 
+		statementType="CALLABLE" 
+		resultMap="sampleVOMap">
+     		{
+     			call getGood(#{vcode, mode=IN}, #{vcursor, mode=OUT, jdbcType=CURSOR, javaType=ResultSet, resultMap=sampleVOMap})
+       		}
+	</select>	
 </mapper>

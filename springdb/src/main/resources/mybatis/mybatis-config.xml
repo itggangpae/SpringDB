@@ -4,6 +4,6 @@
   "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
 	<typeAliases>
-		<typeAlias alias="good" type="mybatis.domain.Good"/>
-    </typeAliases>
+		<package name="db.mybatis.domain"/>
+	</typeAliases>
 </configuration>

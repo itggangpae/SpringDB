@@ -1,6 +1,5 @@
 import java.sql.Connection;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 
 import org.apache.ibatis.session.SqlSession;
@@ -15,17 +14,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = { "classpath:applicationContext.xml" })
 
 public class MyBatisTest {
-	@Resource(name="dataSource")
-	private DataSource ds;
-
-	@Test
-	public void testConection() throws Exception {
-		try (Connection con = ds.getConnection()) {
-			System.out.println(con);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 	
 	@Autowired
 	private SqlSessionFactory sqlFactory;
